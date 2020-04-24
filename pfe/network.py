@@ -1,19 +1,19 @@
 """Main implementation class of PFE
 """
 # MIT License
-# 
+#
 # Copyright (c) 2019 Yichun Shi
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,7 +29,7 @@ import time
 
 import numpy as np
 import tensorflow as tf
-from pfe.utils.tflib import mutual_likelihood_score_loss
+from utils.tflib import mutual_likelihood_score_loss
 
 class Network:
     def __init__(self):
@@ -38,7 +38,7 @@ class Network:
         tf_config = tf.ConfigProto(gpu_options=gpu_options,
                 allow_soft_placement=True, log_device_placement=False)
         self.sess = tf.Session(graph=self.graph, config=tf_config)
-            
+
     def initialize(self, config, num_classes=None):
         '''
             Initialize the graph from scratch according to config.
@@ -62,7 +62,7 @@ class Network:
 
                 # Initialize the uncertainty module
                 uncertainty_module = imp.load_source('uncertainty_module', config.uncertainty_module)
-                log_sigma_sq = uncertainty_module.inference(conv_final, config.embedding_size, 
+                log_sigma_sq = uncertainty_module.inference(conv_final, config.embedding_size,
                                         phase_train = self.phase_train, weight_decay = config.weight_decay,
                                         scope='UncertaintyModule')
 
@@ -73,7 +73,7 @@ class Network:
                 loss_list = []
                 self.watch_list = {}
 
-               
+
                 MLS_loss = mutual_likelihood_score_loss(self.labels, mu, log_sigma_sq)
                 loss_list.append(MLS_loss)
                 self.watch_list['loss'] = MLS_loss
@@ -111,7 +111,7 @@ class Network:
                 self.sess.run(tf.local_variables_initializer())
                 self.sess.run(tf.global_variables_initializer())
                 self.saver = tf.train.Saver(tf.trainable_variables(), max_to_keep=99)
- 
+
         return
 
     @property
@@ -150,7 +150,7 @@ class Network:
             assert len(meta_files) == 1
             meta_file = os.path.join(model_path, meta_files[0])
             ckpt_file = tf.train.latest_checkpoint(model_path)
-            
+
             print('Metagraph file: %s' % meta_file)
             print('Checkpoint file: %s' % ckpt_file)
             saver = tf.train.import_meta_graph(meta_file, clear_devices=True, import_scope=scope)
@@ -187,7 +187,7 @@ class Network:
         for start_idx in range(0, num_images, batch_size):
             if verbose:
                 elapsed_time = time.strftime('%H:%M:%S', time.gmtime(time.time()-start_time))
-                sys.stdout.write('# of images: %d Current image: %d Elapsed time: %s \t\r' 
+                sys.stdout.write('# of images: %d Current image: %d Elapsed time: %s \t\r'
                     % (num_images, start_idx, elapsed_time))
             end_idx = min(num_images, start_idx + batch_size)
             images_batch = images[start_idx:end_idx]

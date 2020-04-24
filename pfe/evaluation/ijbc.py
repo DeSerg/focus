@@ -9,7 +9,7 @@ import os
 import numpy as np
 import pfe.utils
 
-from pfe.evaluation import metrics
+from evaluation import metrics
 from collections import namedtuple
 
 
@@ -22,7 +22,7 @@ class Template:
         self.label = label
         self.indices = np.array(indices)
         self.medias = np.array(medias)
-        
+
 
 def build_subject_dict(image_list):
     subject_dict = {}
@@ -31,7 +31,7 @@ def build_subject_dict(image_list):
         if subject_id == 'NaN': continue
         subject_id = int(subject_id)
         image, _ = os.path.splitext(image)
-        image = image.replace('_','/',1) # Recover filenames 
+        image = image.replace('_','/',1) # Recover filenames
         if not subject_id in subject_dict:
             subject_dict[subject_id] = {}
         subject_dict[subject_id][image] = i
@@ -69,8 +69,8 @@ def build_templates(subject_dict, meta_file):
             template_medias = []
 
         if index is not None:
-            template_indices.append(index)        
-            template_medias.append(media)        
+            template_indices.append(index)
+            template_medias.append(media)
 
     # last template
     templates.append(Template(template_id, template_label, template_indices, template_medias))
@@ -120,7 +120,7 @@ class IJBCTest:
 
         self.verification_G1_templates = np.array(self.verification_G1_templates, dtype=np.object)
         self.verification_G2_templates = np.array(self.verification_G2_templates, dtype=np.object)
-    
+
         self.verification_templates = np.concatenate([
             self.verification_G1_templates, self.verification_G2_templates])
         print('{} templates are initialized.'.format(len(self.verification_templates)))
@@ -145,7 +145,7 @@ class IJBCTest:
         label_vec = labels1 == labels2
 
         tars, fars, thresholds = metrics.ROC(score_vec, label_vec, FARs=FARs)
-        
+
         # There is no std for IJB-C
         std = [0. for t in tars]
 

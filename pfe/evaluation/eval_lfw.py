@@ -1,19 +1,19 @@
 """Test PFE on LFW.
 """
 # MIT License
-# 
+#
 # Copyright (c) 2019 Yichun Shi
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,11 +30,11 @@ import time
 import math
 import numpy as np
 
-from pfe.utils import utils
-from pfe.utils.imageprocessing import preprocess
-from pfe.utils.dataset import Dataset
-from pfe.network import Network
-from pfe.evaluation.lfw import LFWTest
+from utils import utils
+from utils.imageprocessing import preprocess
+from utils.dataset import Dataset
+from network import Network
+from evaluation.lfw import LFWTest
 
 
 def main(args):
@@ -46,13 +46,13 @@ def main(args):
 
     # Load model files and config file
     network = Network()
-    network.load_model(args.model_dir) 
+    network.load_model(args.model_dir)
     images = preprocess(paths, network.config, False)
 
     # Run forward pass to calculate embeddings
     mu, sigma_sq = network.extract_feature(images, args.batch_size, verbose=True)
     feat_pfe = np.concatenate([mu, sigma_sq], axis=1)
-    
+
     lfwtest = LFWTest(paths)
     lfwtest.init_standard_proto(args.protocol_path)
 

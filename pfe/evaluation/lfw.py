@@ -1,19 +1,19 @@
 """Test protocols on LFW dataset
 """
 # MIT License
-# 
+#
 # Copyright (c) 2017 Yichun Shi
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,7 +25,7 @@
 import os
 import numpy as np
 import scipy.io as sio
-from pfe.evaluation import metrics
+from evaluation import metrics
 from collections import namedtuple
 
 StandardFold = namedtuple('StandardFold', ['indices1', 'indices2', 'labels'])
@@ -67,7 +67,7 @@ class LFWTest:
                 else:
                     assert len(pair) == 4
                     img1 = pair[0] + '_' + '%04d' % int(pair[1])
-                    img2 = pair[2] + '_' + '%04d' % int(pair[3])                
+                    img2 = pair[2] + '_' + '%04d' % int(pair[3])
                 indices1[j] = index_dict[img1]
                 indices2[j] = index_dict[img2]
             fold = StandardFold(indices1, indices2, labels)
@@ -76,7 +76,7 @@ class LFWTest:
     def test_standard_proto(self, features, compare_func):
 
         assert self.standard_folds is not None
-        
+
         accuracies = np.zeros(10, dtype=np.float32)
         thresholds = np.zeros(10, dtype=np.float32)
 
@@ -91,7 +91,7 @@ class LFWTest:
 
             train_features1 = features[train_indices1,:]
             train_features2 = features[train_indices2,:]
-            
+
             train_score = compare_func(train_features1, train_features2)
             _, thresholds[i] = metrics.accuracy(train_score, train_labels)
 
@@ -99,7 +99,7 @@ class LFWTest:
             fold = self.standard_folds[i]
             test_features1 = features[fold.indices1,:]
             test_features2 = features[fold.indices2,:]
-            
+
             test_score = compare_func(test_features1, test_features2)
             accuracies[i], _ = metrics.accuracy(test_score, fold.labels, np.array([thresholds[i]]))
 

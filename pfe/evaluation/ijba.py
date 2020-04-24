@@ -1,19 +1,19 @@
 """Test protocol for IJB-A.
 """
 # MIT License
-# 
+#
 # Copyright (c) 2019 Yichun Shi
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,7 +29,7 @@ import pfe.utils
 
 from collections import namedtuple
 
-from pfe.evaluation import metrics
+from evaluation import metrics
 
 VerificationFold = namedtuple('VerificationFold', ['train_indices', 'test_indices', 'train_templates', 'templates1','templates2'])
 
@@ -39,7 +39,7 @@ class Template:
         self.label = label
         self.indices = np.array(indices)
         self.medias = np.array(medias)
-        
+
 
 def build_subject_dict(image_list):
     subject_dict = {}
@@ -47,7 +47,7 @@ def build_subject_dict(image_list):
         subject_id, image = tuple(line.split('/')[-2:])
         subject_id = int(subject_id)
         image, _ = os.path.splitext(image)
-        image = image.replace('_','/',1) # Recover filenames 
+        image = image.replace('_','/',1) # Recover filenames
         if not subject_id in subject_dict:
             subject_dict[subject_id] = {}
         subject_dict[subject_id][image] = i
@@ -62,7 +62,7 @@ def build_templates(subject_dict, meta_file):
     templates = []
     template_id = None
     template_label = None
-    template_indices = None 
+    template_indices = None
     template_medias = None
     count = 0
     for line in meta_list:
@@ -84,8 +84,8 @@ def build_templates(subject_dict, meta_file):
             template_indices = []
             template_medias = []
         if index is not None:
-            template_indices.append(index)   
-            template_medias.append(media)      
+            template_indices.append(index)
+            template_medias.append(media)
 
     # last template
     templates.append(Template(template_id, template_label, template_indices, template_medias))
@@ -163,13 +163,13 @@ class IJBATest:
         score_vec = compare_func(features1, features2)
         label_vec = labels1 == labels2
 
-        score_neg = score_vec[~label_vec]     
+        score_neg = score_vec[~label_vec]
 
-        return metrics.ROC(score_vec, label_vec, 
+        return metrics.ROC(score_vec, label_vec,
                 FARs=FARs, get_false_indices=get_false_indices)
 
     def test_verification(self, compare_func, FARs=None):
-        
+
         TARs_all = []
         FARs_all = []
         for i in range(10):

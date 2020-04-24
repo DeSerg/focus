@@ -1,19 +1,19 @@
 """Test PFE on IJB-A.
 """
 # MIT License
-# 
+#
 # Copyright (c) 2019 Yichun Shi
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,14 +29,14 @@ import math
 import argparse
 import numpy as np
 
-from pfe.utils import utils
-from pfe.utils.dataset import Dataset
-from pfe.utils.imageprocessing import preprocess
-from pfe.network import Network
+from utils import utils
+from utils.dataset import Dataset
+from utils.imageprocessing import preprocess
+from network import Network
 
 
-from pfe.evaluation.ijba import IJBATest
-from pfe.evaluation.ijbc import IJBCTest
+from evaluation.ijba import IJBATest
+from evaluation.ijbc import IJBCTest
 
 
 def aggregate_templates(templates, features, method):
