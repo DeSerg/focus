@@ -7,7 +7,7 @@ More instructions can be found in README.md file.
 import sys
 import os
 import numpy as np
-import pfe.utils
+import utils
 
 from evaluation import metrics
 from collections import namedtuple
@@ -22,7 +22,6 @@ class Template:
         self.label = label
         self.indices = np.array(indices)
         self.medias = np.array(medias)
-
 
 def build_subject_dict(image_list):
     subject_dict = {}
@@ -83,6 +82,52 @@ def read_pairs(pair_file):
         pairs = [pair.split(',') for pair in pairs]
         pairs = [(int(pair[0]), int(pair[1])) for pair in pairs]
     return pairs
+
+
+class IJBBTest:
+
+    def __init__(self, hints_filepath):
+        self.image_paths = load_image_paths(hints_filepath)
+        self.subject_dict = build_subject_dict(image_paths)
+        self.verification_folds = None
+        self.verification_templates = None
+        self.verification_G1_templates = None
+        self.verification_G2_templates = None
+
+    def init_proto_8(self, protofolder):
+        self.verification_folds = []
+        self.verification_templates = []
+
+        hints_filename = os.path.join(protofolder,'ijbb_detection_clustering_hint_100000.csv')
+
+        gallery_templates = build_templates(self.subject_dict, meta_gallery1)
+        gallery_templates.extend(build_templates(self.subject_dict, meta_gallery2))
+        gallery_templates.extend(build_templates(self.subject_dict, meta_probe))
+
+        # Build pairs
+        template_dict = {}
+        for t in gallery_templates:
+            template_dict[t.template_id] = t
+        pairs = read_pairs(pair_file)
+        self.verification_G1_templates = []
+        self.verification_G2_templates = []
+        for p in pairs:
+            self.verification_G1_templates.append(template_dict[p[0]])
+            self.verification_G2_templates.append(template_dict[p[1]])
+
+        self.verification_G1_templates = np.array(self.verification_G1_templates, dtype=np.object)
+        self.verification_G2_templates = np.array(self.verification_G2_templates, dtype=np.object)
+
+        self.verification_templates = np.concatenate([
+            self.verification_G1_templates, self.verification_G2_templates])
+        print('{} templates are initialized.'.format(len(self.verification_templates)))
+
+
+    def init_proto(self, protofolder):
+        self.init_proto_8(protofolder)
+
+    def generate_clusters_csv(self, compare_func, FARs=None):
+        pass
 
 class IJBCTest:
 

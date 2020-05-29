@@ -38,6 +38,8 @@ from network import Network
 
 def main(args):
 
+    tf.compat.v1.disable_eager_execution()
+
     # I/O
     config_file = args.config_file
     config = imp.load_source('config', config_file)
@@ -51,7 +53,7 @@ def main(args):
 
     # Initalization for running
     log_dir = utils.create_log_dir(config, config_file)
-    summary_writer = tf.summary.FileWriter(log_dir, network.graph)
+    summary_writer = tf.compat.v1.summary.FileWriter(log_dir, network.graph)
     if config.restore_model:
         network.restore_model(config.restore_model, config.restore_scopes)
 

@@ -34,10 +34,10 @@ from utils.tflib import mutual_likelihood_score_loss
 class Network:
     def __init__(self):
         self.graph = tf.Graph()
-        gpu_options = tf.GPUOptions(allow_growth=True)
-        tf_config = tf.ConfigProto(gpu_options=gpu_options,
+        gpu_options = tf.compat.v1.GPUOptions(allow_growth=True)
+        tf_config = tf.compat.v1.ConfigProto(gpu_options=gpu_options,
                 allow_soft_placement=True, log_device_placement=False)
-        self.sess = tf.Session(graph=self.graph, config=tf_config)
+        self.sess = tf.compat.v1.Session(graph=self.graph, config=tf_config)
 
     def initialize(self, config, num_classes=None):
         '''
@@ -48,12 +48,12 @@ class Network:
                 # Set up placeholders
                 h, w = config.image_size
                 channels = config.channels
-                self.images = tf.placeholder(tf.float32, shape=[None, h, w, channels], name='images')
-                self.labels = tf.placeholder(tf.int32, shape=[None], name='labels')
+                self.images = tf.compat.v1.placeholder(tf.float32, shape=[None, h, w, channels], name='images')
+                self.labels = tf.compat.v1.placeholder(tf.int32, shape=[None], name='labels')
 
-                self.learning_rate = tf.placeholder(tf.float32, name='learning_rate')
-                self.keep_prob = tf.placeholder(tf.float32, name='keep_prob')
-                self.phase_train = tf.placeholder(tf.bool, name='phase_train')
+                self.learning_rate = tf.compat.v1.placeholder(tf.float32, shape=[], name='learning_rate')
+                self.keep_prob = tf.compat.v1.placeholder(tf.float32, name='keep_prob')
+                self.phase_train = tf.compat.v1.placeholder(tf.bool, name='phase_train')
                 self.global_step = tf.Variable(0, trainable=False, dtype=tf.int32, name='global_step')
 
                 # Initialialize the backbone network
@@ -80,7 +80,7 @@ class Network:
 
 
                 # Collect all losses
-                reg_loss = tf.reduce_sum(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES), name='reg_loss')
+                reg_loss = tf.reduce_sum(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.REGULARIZATION_LOSSES), name='reg_loss')
                 loss_list.append(reg_loss)
                 self.watch_list['reg_loss'] = reg_loss
 
@@ -92,31 +92,31 @@ class Network:
                 # Training Operaters
                 train_ops = []
 
-                opt = tf.train.MomentumOptimizer(self.learning_rate, momentum=0.9)
+                opt = tf.compat.v1.train.MomentumOptimizer(self.learning_rate, momentum=0.9)
                 apply_gradient_op = opt.apply_gradients(list(zip(grads, self.trainable_variables)))
 
-                update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+                update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS)
                 train_ops.extend([apply_gradient_op] + update_ops)
 
-                train_ops.append(tf.assign_add(self.global_step, 1))
+                train_ops.append(tf.compat.v1.assign_add(self.global_step, 1))
                 self.train_op = tf.group(*train_ops)
 
                 # Collect TF summary
                 for k,v in self.watch_list.items():
-                    tf.summary.scalar('losses/' + k, v)
-                tf.summary.scalar('learning_rate', self.learning_rate)
-                self.summary_op = tf.summary.merge_all()
+                    tf.compat.v1.summary.scalar('losses/' + k, v)
+                tf.compat.v1.summary.scalar('learning_rate', self.learning_rate)
+                self.summary_op = tf.compat.v1.summary.merge_all()
 
                 # Initialize variables
-                self.sess.run(tf.local_variables_initializer())
-                self.sess.run(tf.global_variables_initializer())
-                self.saver = tf.train.Saver(tf.trainable_variables(), max_to_keep=99)
+                self.sess.run(tf.compat.v1.local_variables_initializer())
+                self.sess.run(tf.compat.v1.global_variables_initializer())
+                self.saver = tf.compat.v1.train.Saver(tf.compat.v1.trainable_variables(), max_to_keep=99)
 
         return
 
     @property
     def trainable_variables(self):
-        return tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='UncertaintyModule')
+        return tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES, scope='UncertaintyModule')
 
     def save_model(self, model_dir, global_step):
         with self.sess.graph.as_default():
@@ -130,7 +130,7 @@ class Network:
                 self.saver.export_meta_graph(metagraph_path)
 
     def restore_model(self, model_dir, restore_scopes=None):
-        var_list = self.graph.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
+        var_list = self.graph.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES)
         with self.sess.graph.as_default():
             if restore_scopes is not None:
                 var_list = [var for var in var_list if any([scope in var.name for scope in restore_scopes])]
@@ -138,7 +138,7 @@ class Network:
             ckpt_file = tf.train.latest_checkpoint(model_dir)
 
             print('Restoring {} variables from {} ...'.format(len(var_list), ckpt_file))
-            saver = tf.train.Saver(var_list)
+            saver = tf.compat.v1.train.Saver(var_list)
             saver.restore(self.sess, ckpt_file)
 
     def load_model(self, model_path, scope=None):
@@ -153,7 +153,7 @@ class Network:
 
             print('Metagraph file: %s' % meta_file)
             print('Checkpoint file: %s' % ckpt_file)
-            saver = tf.train.import_meta_graph(meta_file, clear_devices=True, import_scope=scope)
+            saver = tf.compat.v1.train.import_meta_graph(meta_file, clear_devices=True, import_scope=scope)
             saver.restore(self.sess, ckpt_file)
 
             # Setup the I/O Tensors

@@ -36,6 +36,7 @@ import argparse
 import random
 import cv2
 import matplotlib.pyplot as plt
+import imageio
 
 def align(src_img, src_pts, ref_pts, image_size, scale=1.0, transpose_input=False):
     w, h = image_size = tuple(image_size)
@@ -60,16 +61,15 @@ def align(src_img, src_pts, ref_pts, image_size, scale=1.0, transpose_input=Fals
     tfm = tfm.reshape([-1])
     return dst_img, s_new, tfm
 
+ref_pts = np.array( [[ -1.58083929e-01, -3.84258929e-02],
+                     [  1.56533929e-01, -4.01660714e-02],
+                     [  2.25000000e-04,  1.40505357e-01],
+                     [ -1.29024107e-01,  3.24691964e-01],
+                     [  1.31516964e-01,  3.23250893e-01]])
 
 def main(args):
     with open(args.input_file, 'r') as f:
         lines = f.readlines()
-
-    ref_pts = np.array( [[ -1.58083929e-01, -3.84258929e-02],
-                         [  1.56533929e-01, -4.01660714e-02],
-                         [  2.25000000e-04,  1.40505357e-01],
-                         [ -1.29024107e-01,  3.24691964e-01],
-                         [  1.31516964e-01,  3.23250893e-01]])
 
     for i,line in enumerate(lines):
         line = line.strip()
@@ -80,14 +80,13 @@ def main(args):
         # Transform
         if args.prefix:
             img_path = os.path.join(args.prefix, img_path)
-        img = misc.imread(img_path)
+        img = imageio.imread(img_path)
         img_new, new_pts, tfm = align(img, src_pts, ref_pts, args.image_size, args.scale, args.transpose_input)
 
         # Visulize
         if args.visualize:
             plt.imshow(img_new)
             plt.show()
-
 
         # Output
         if args.output_dir:
@@ -99,7 +98,7 @@ def main(args):
             if not os.path.isdir(dir_path):
                 os.makedirs(dir_path)
             img_path_new = os.path.join(dir_path, file_name)
-            misc.imsave(img_path_new, img_new)
+            imageio.imwrite(img_path_new, img_new)
             if i % 100==0:
                 print(img_path_new)
 

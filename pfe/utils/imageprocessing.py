@@ -1,19 +1,19 @@
 """Functions for image processing
 """
 # MIT License
-# 
+#
 # Copyright (c) 2017 Yichun Shi
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,6 +27,7 @@ import os
 import math
 import random
 import numpy as np
+import imageio
 from scipy import misc
 
 
@@ -73,7 +74,7 @@ def center_crop(images, size):
 def random_flip(images):
     images_new = images.copy()
     flips = np.random.rand(images_new.shape[0])>=0.5
-    
+
     for i in range(images_new.shape[0]):
         if flips[i]:
             images_new[i] = np.fliplr(images[i])
@@ -106,7 +107,7 @@ def padding(images, padding):
         pad_l = pad_r = padding[1]
     else:
         pad_t, pad_b, pad_l, pad_r = tuple(padding)
-       
+
     size_new = (_h + pad_t + pad_b, _w + pad_l + pad_b)
     shape_new = get_new_shape(images, size_new)
     images_new = np.zeros(shape_new, dtype=images.dtype)
@@ -138,11 +139,11 @@ def random_shift(images, max_ratio):
     shift_y = (_h * max_ratio * np.random.rand(n)).astype(np.int32)
 
     for i in range(n):
-        images_new[i] = images_temp[i, pad_y+shift_y[i]:pad_y+shift_y[i]+_h, 
+        images_new[i] = images_temp[i, pad_y+shift_y[i]:pad_y+shift_y[i]+_h,
                             pad_x+shift_x[i]:pad_x+shift_x[i]+_w]
 
-    return images_new    
-    
+    return images_new
+
 
 def random_downsample(images, min_ratio):
     n, _h, _w = images.shape[:3]
@@ -154,7 +155,7 @@ def random_downsample(images, min_ratio):
         h = int(round(ratios[i] * _h))
         images_new[i,:h,:w] = misc.imresize(images[i], (h,w))
         images_new[i] = misc.imresize(images_new[i,:h,:w], (_h,_w))
-        
+
     return images_new
 
 def random_interpolate(images):
@@ -169,7 +170,7 @@ def random_interpolate(images):
     images_new = images_new.astype(np.uint8)
 
     return images_new
-    
+
 def expand_flip(images):
     '''Flip each image in the array and insert it after the original image.'''
     _n, _h, _w = images.shape[:3]
@@ -201,8 +202,8 @@ def ten_crop(images, size):
     images_new = np.stack([images_, images_flip_], axis=1)
     images_new = images_new.reshape(shape_new)
     return images_new
-    
-    
+
+
 
 register = {
     'resize': resize,
@@ -227,7 +228,7 @@ def preprocess(images, config, is_training=False):
         assert (config.channels==1 or config.channels==3)
         mode = 'RGB' if config.channels==3 else 'I'
         for image_path in image_paths:
-            images.append(misc.imread(image_path, mode=mode))
+            images.append(imageio.imread(image_path, pilmode=mode))
         images = np.stack(images, axis=0)
     else:
         assert type(images) == np.ndarray
@@ -244,5 +245,5 @@ def preprocess(images, config, is_training=False):
     if len(images.shape) == 3:
         images = images[:,:,:,None]
     return images
-        
+
 

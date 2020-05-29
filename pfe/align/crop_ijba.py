@@ -16,7 +16,7 @@ padding_ratio = 0.0         # Add padding to bounding boxes by a ratio
 target_size = (256, 256)    # If not None, resize image after processing
 
 def square_bbox(bbox):
-    '''Output a square-like bounding box. But because all the numbers are float, 
+    '''Output a square-like bounding box. But because all the numbers are float,
     it is not guaranteed to really be a square.'''
     x, y, w, h = tuple(bbox)
     cx = x + 0.5 * w
@@ -25,7 +25,7 @@ def square_bbox(bbox):
     _x = cx - 0.5*_w
     _y = cy - 0.5*_h
     return (_x, _y, _w, _h)
-    
+
 def pad_bbox(bbox, padding_ratio):
     x, y, w, h = tuple(bbox)
     pad_x = padding_ratio * w
@@ -49,15 +49,15 @@ def main(args):
     # Some files have different extensions in the meta file,
     # record their oroginal name for reading
     files_img = os.listdir(args.prefix+'/img/')
-    files_frames = os.listdir(args.prefix+'/frame/')
+    files_frames = os.listdir(args.prefix+'/frames/')
     dict_path= {}
     for img in files_img:
         basename = os.path.splitext(img)[0]
         dict_path['img/' + basename] = args.prefix + '/img/' + img
     for img in files_frames:
         basename = os.path.splitext(img)[0]
-        dict_path['frame/' + basename] = args.prefix + '/frame/' + img
-    
+        dict_path['frames/' + basename] = args.prefix + '/frames/' + img
+
     count_success = 0
     count_fail = 0
     dict_name = {}
@@ -66,13 +66,14 @@ def main(args):
             parts = line.split(',')
             label = parts[0]
             impath = os.path.join(args.prefix,parts[2])
+            impath = impath.replace('frame', 'frames')
             imname = os.path.join(label, parts[2].replace('/','_'))
-            
+
             # Check name duplication
             if imname in dict_name:
                 print('image %s at line %d collision with  line %d' % (imname, i, dict_name[imname]))
             dict_name[imname] = i
-            
+
             # Check extention difference
             if not os.path.isfile(impath):
                 basename = os.path.splitext(parts[2])[0]
@@ -82,9 +83,9 @@ def main(args):
                     print('%s not found in the input directory, skipped' % (impath))
                     continue
 
-            img = cv2.imread(impath, flags=1)
+            img = cv2.imread(impath)
 
-            if img.ndim == 0:
+            if img is None or img.ndim == 0:
                 print('Invalid image: %s' % impath)
                 count_fail += 1
             else:
