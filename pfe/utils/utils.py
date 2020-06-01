@@ -94,6 +94,7 @@ def pair_euc_score(x1, x2):
 
 def pair_MLS_score(x1, x2, sigma_sq1=None, sigma_sq2=None):
     if sigma_sq1 is None:
+        print('pair_MLS_score: ', x1, x2)
         x1, x2 = np.array(x1), np.array(x2)
         assert sigma_sq2 is None, 'either pass in concated features, or mu, sigma_sq for both!'
         D = int(x1.shape[1] / 2)
