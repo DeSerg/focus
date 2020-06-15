@@ -1,7 +1,10 @@
 import os
+import random
+import string
+import ntpath
 
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, FileResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic.edit import FormView
@@ -21,8 +24,13 @@ def index(request):
     context = {'album_list': album_list}
     return render(request, 'bocus/index.html', context)
 
+def random_choice():
+    alphabet = string.ascii_lowercase + string.digits
+    return ''.join(random.choices(alphabet, k=8))
+
 def create_album(request):
     album = Album()
+    album.name = random_choice()
     album.path = os.path.join(ext.IMAGES_DIR, album.name)
     os.mkdir(album.path)
     album.save()
@@ -53,6 +61,8 @@ def upload_photos(request, album_id):
                 with open(image_path, 'wb+') as destination:
                     for chunk in f.chunks():
                         destination.write(chunk)
+            rf = RecognizeFace(album.path)
+            rf.perform_clustering()
 
         else:
             print('Invalid form! {}'.format(form.errors))
@@ -72,18 +82,19 @@ def recognize(request, album_id):
     for chunk in upl_f.chunks():
         face_img_file.write(chunk)
 
-    recognizer = RecognizeFace(face_img_path, album.path)
-    filepaths = recognizer.perform_recognition()
+    recognizer = RecognizeFace(album.path)
+    filepaths = recognizer.perform_recognition(face_img_path)
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         archive_path = os.path.join(tmpdirname, 'recognized.zip')
+        print('archive_path: ', archive_path)
         zipObj = ZipFile(archive_path, 'w')
 
         for filepath in filepaths:
-            zioObj.write(filepath)
+            zipObj.write(filepath, ntpath.basename(filepath))
 
         zipObj.close()
 
-    response = FileResponse(open(archive_path, 'rb'))
-    return response
+        response = FileResponse(open(archive_path, 'rb'))
+        return response
 

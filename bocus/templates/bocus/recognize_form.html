@@ -1,0 +1,11 @@
+<form action="{% url 'bocus:recognize' %}" method="post">
+
+{% csrf_token %}
+
+{{ form }}
+
+<input type="submit" class="button">Скачать фото с лицом из шаблона</input>
+
+</form>
+
+

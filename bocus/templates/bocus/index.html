@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Focus</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
+  </head>
+  <body>
+
+  <section class="section">
+    <div class="container">
+      <h1 class="title">
+        Focus
+      </h1>
+      <p class="subtitle">
+        Создавайте альбомы и ищите людей на фотографиях с помощью <strong>Focus</strong>
+      </p>
+
+      <br>
+      <form action="{% url 'bocus:create_album' %}" method="post">
+        {% csrf_token %}
+        <button class="button">Создать альбом</button>
+      </form>
+
+    </div>
+
+    <br>
+    <br>
+    <div class="container">
+    </div>
+{% if album_list %}
+    <div class="container">
+      <p class="subtitle">
+        Ваши альбомы:
+      </p>
+
+      <ul>
+      {% for album in album_list %}
+        <li><a href="{% url 'bocus:detail' album.id %}"> Альбом {{ forloop.counter }}</a></li>
+      {% endfor %}
+      </ul>
+
+    </div>
+{% endif %}
+
+  </section>
+  </body>
+</html>
+

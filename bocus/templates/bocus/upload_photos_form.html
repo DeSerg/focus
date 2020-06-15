@@ -1,0 +1,10 @@
+<form action="{% url 'bocus:upload_photos' %}" method="post">
+
+{% csrf_token %}
+
+{{ form }}
+
+<input type="submit" class="button">Добавить фото в альбом</input>
+
+</form>
+

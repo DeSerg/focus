@@ -1,24 +1,23 @@
 from django.db import models
-import string
-import random
 import os
 
-def random_choice():
-    alphabet = string.ascii_lowercase + string.digits
-    return ''.join(random.choices(alphabet, k=8))
+import bocus.extern as ext
+
 
 def images_path():
         return os.path.join(settings.LOCAL_FILE_DIR, 'images')
 
 # Create your models here.
 class Album(models.Model):
-    name = models.CharField(max_length=20, default=random_choice())
+    name = models.CharField(max_length=20)
     path = models.CharField(max_length=100)
 
     def photos_num(self):
         count = 0
+        pkl_filepath = os.path.join(self.path, ext.PKL_FILENAME)
         for name in os.listdir(self.path):
-            if os.path.isfile(os.path.join(self.path, name)):
+            filepath = os.path.join(self.path, name)
+            if os.path.isfile(filepath) and filepath != pkl_filepath:
                 count += 1
         return count
 
